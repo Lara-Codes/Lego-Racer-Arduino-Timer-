@@ -6,7 +6,7 @@ unsigned long timeSpinning = 60000; // Spin for 60s
 bool motorRunning; // Is motor running? 
 bool onHold; // Is the time delay in effect? 
 
-const int sensorPin = 1; // pin connected to sensor
+const int sensorPin = 4; // pin connected to sensor
 const int relayPin = 13; // pin connected to relay 
 
 void setup(){
