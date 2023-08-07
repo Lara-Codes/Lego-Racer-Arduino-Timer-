@@ -1,15 +1,18 @@
-#include <stdbool.h>
+#include <stdbool.h> // Arduino nano 
 
 unsigned long timeDelay = 20000; // Time delay by 20s 
 unsigned long timeSpinning = 60000; // Spin for 60s 
 
-bool motorRunning = false; // Is motor running? 
-bool onHold = false; // Is the time delay in effect? 
+bool motorRunning; // Is motor running? 
+bool onHold; // Is the time delay in effect? 
 
 const int sensorPin = 1; // pin connected to sensor
-const int relayPin = 2; // pin connected to relay 
+const int relayPin = 13; // pin connected to relay 
 
 void setup(){
+    motorRunning = false; // Initialize motorRunning 
+    onHold = false; // Intialize onHold
+
     // Initialize pin connected to sensor as an input. LOW if its triggered.
     pinMode(sensorPin, INPUT_PULLUP);
 
@@ -19,10 +22,10 @@ void setup(){
 }
 
 void loop(){
-    
+
     // If sensor detected and its not moving or on the delay, turn on relay/motor.
     if(digitalRead(sensorPin) ==  LOW && motorRunning==false && onHold==false){ 
-
+        
         motorRunning = true; 
         // turn on relay pin 
         digitalWrite(relayPin, HIGH);
