@@ -22,7 +22,8 @@ void loop(){
     
     // If sensor detected and its not moving or on the delay, turn on relay/motor.
     if(digitalRead(sensorPin) ==  LOW && motorRunning==false && onHold==false){ 
-        
+
+        motorRunning = true; 
         // turn on relay pin 
         digitalWrite(relayPin, HIGH);
 
