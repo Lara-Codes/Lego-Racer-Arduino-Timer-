@@ -20,7 +20,8 @@ bool drawDots;
 int dig0, dig1, dig3, dig4; 
 
 
-// State of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped). State determined by sensor/button input in loop(). 
+// State of timer. Can be 1 (timer running), or 2 (Timer stopped). State determined by sensor/button input in loop(). Ommitted state 0 
+// after it turns on initially (display 00:00) but can be re-included with a reset button as necessary. 
 int state;
 
 void setup() {
@@ -55,27 +56,29 @@ void loop() {
         state = 1; 
       }
 
-      if(state==0){ // If the state is 0, display 00:00. 
+      if(state==0){ // If the state is 0, display 00:00. Again, can connect a reset button to enter this state. As of now, 
+          // it only displays 00:00 when the Arduino intitially turns on. 
         resetTimer();
       } else if(state==1){ // if the state is 1, run timer. 
-        drawTime(); 
+        drawTime(); // The state may become 2 and display end time only in this function.
       }else{
-        displayEndTime(); // If the state is 2, display most recent value.
+        displayEndTime(); // If the state is 2, display most recent value stored in dig0, dig1, dig3, dig4. Digits set in drawTime() function.
       }
       
 }
 
-// Stopwatch function. If the timer is in state 0 (00:00) and the sensor is triggered, the program will trigger this function. 
+// Stopwatch function. If the first sensor is triggered, the program will enter this function. 
 void drawTime(){
-  Serial.println(state); // For debugging. Can delete later. 
     for (uint16_t counter = 0; counter < 9999; counter ++) { // uint16_t is an unsigned 16 bit integer data type 
       // Storing the most current values of each digit on the LED display. These values are what the stopwatch will "freeze" to when stopped. 
-      dig0=counter/1000; 
+      // The counter represents the time displayed on the stop watch. The code below extracts each digit from the overal number. For 
+        // example, if the counter is 1456, dig0 will hold 1, dig1 will hold 4, dig3 holds 5, and dig4 holds 6. 
+        dig0=counter/1000; 
       dig1 = (counter/100) % 10; 
       dig3= (counter/10) % 10;
       dig4=counter % 10;
 
-      // Writing the digits to the LED display 
+      // Writing each digits to the LED display. 
       matrix.writeDigitNum(0, (counter / 1000), drawDots);
       matrix.writeDigitNum(1, (counter / 100) % 10, drawDots);
       matrix.drawColon(drawDots);
@@ -84,11 +87,13 @@ void drawTime(){
       matrix.writeDisplay();
 
       delay(8); // This statement is needed or else the timer goes waaay too fast. THIS IS FOR THE FOR-LOOP NOT THE HARDWARE! 
-
-      // If the sensor is triggered while the stopwatch is runing, increase the state to 2 to stop the numbers and display the most recent digits. Then break out of the loop. 
+        // I compared the speed of the program to a real stopwatch, and a delay of 8ms makes the loop closest to 1 loop = 1s. 
+        
+      // If the second sensor is triggered while the stopwatch is runing, increase the state to 2 and break out of the loop. 
+        // When the state is 2, it displays the digits stored in dig0 - dig4 (Freezes the stopwatch). Calls function displayEndTime() 
+        // in the main loop when state is 2. 
       if(digitalRead(sensorTwoPin) == HIGH) {
           state = 2;
-          Serial.println(counter);
           break;
       }
   }
@@ -96,7 +101,6 @@ void drawTime(){
 
 // When the state is equal to 2 (ie the sensor was triggered while the stopwatch was running), display the digits stored in dig0dig1:dig3dig4 (freeze the timer).
 void displayEndTime(){
-
     matrix.writeDigitNum(0, dig0, drawDots);
     matrix.writeDigitNum(1, dig1, drawDots);
     matrix.drawColon(drawDots);
