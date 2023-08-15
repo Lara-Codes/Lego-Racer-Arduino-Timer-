@@ -1,3 +1,53 @@
+// Include for boolean operations 
+#include <stdbool.h>
+
+// Includes for the LED display 
+#include <Wire.h> 
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+
+// Pins connected to each of the 2 sensors 
+const int sensorOnePin = 9; 
+const int sensorTwoPin = 10; 
+
+// LED display initialization
+Adafruit_7segment matrix = Adafruit_7segment();
+
+// Indicates if you want the dots to be displayed on the LED board (ex. 11:11). Initialized to true in setup().
+bool drawDots; 
+
+// Each digit on LED display. Skips 2 because digit2 represents the colon in the time. 
+int dig0, dig1, dig3, dig4; 
+
+
+// State of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped). State determined by sensor/button input in loop(). 
+int state;
+
+void setup() {
+    // Sensor 1 initializing
+    pinMode(sensorOnePin, INPUT); // INPUT_PULLUP -> sensor HIGH when triggered. 
+
+    // Sensor 2 initializing
+    pinMode(sensorTwoPin, INPUT);
+
+    // Enable dots in time (ex: 11:11)
+    drawDots = true; 
+
+  // I2C communication port for LED display 
+    matrix.begin(0x70);
+
+    // Initializing each digit on LED display to 0. Skips 2 because digit2 represents the colon in the time. 
+    dig0 = 0, dig1=0, dig3=0, dig4 = 0; 
+
+    // Initialize state of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped).
+    state = 0;
+
+    // Serial monitor for debugging. Can delete later. 
+    Serial.begin(9600);
+}
+
+void loop() {
+    // Printing state of timer for debugging. Can delete later. 
     // Serial.println(state);
 
       // If the timer displays 00:00 and the button is pressed, change state to 1 (running).
@@ -46,14 +96,6 @@ void drawTime(){
 
 // When the state is equal to 2 (ie the sensor was triggered while the stopwatch was running), display the digits stored in dig0dig1:dig3dig4 (freeze the timer).
 void displayEndTime(){
-
-  // String str = dig0 + " ";
-  // String str2 = str + dig1; 
-  // String str3 = str2 + " ";
-  // String str4 = str3 + dig3; 
-  // String str5 = str4 + " ";
-  // String str6 = str5 + dig4;
-  // Serial.println(str6);
 
     matrix.writeDigitNum(0, dig0, drawDots);
     matrix.writeDigitNum(1, dig1, drawDots);
