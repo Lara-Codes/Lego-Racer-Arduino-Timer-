@@ -26,7 +26,7 @@ int state;
 
 void setup() {
     // Sensor 1 initializing
-    pinMode(sensorOnePin, INPUT); // INPUT_PULLUP -> sensor HIGH when triggered. 
+    pinMode(sensorOnePin, INPUT); // INPUT
 
     // Sensor 2 initializing
     pinMode(sensorTwoPin, INPUT);
