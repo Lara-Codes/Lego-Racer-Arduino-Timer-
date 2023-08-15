@@ -48,7 +48,7 @@ void setup() {
 }
 
 void loop() {
-      // If the timer displays 00:00 and the button is pressed, change state to 1 (running).
+      // Change state to 1 (running) if first sensor is triggered.
       if(digitalRead(sensorOnePin) == HIGH){
         state = 1; 
       }
