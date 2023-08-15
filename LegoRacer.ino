@@ -7,13 +7,8 @@
 #include "Adafruit_LEDBackpack.h"
 
 // Pins connected to each of the 2 sensors 
-const int sensorOnePin = 2; 
-const int sensorTwoPin = 16;
-
-/*
-[CONNECT PIN HERE FOR RESET BUTTON] 
-const int resetButton = 15; // Button to reset the timer 
-*/
+const int sensorOnePin = 9; 
+const int sensorTwoPin = 10; 
 
 // LED display initialization
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -30,16 +25,10 @@ int state;
 
 void setup() {
     // Sensor 1 initializing
-    pinMode(sensorOnePin, INPUT_PULLUP); // INPUT_PULLUP -> sensor HIGH when triggered. 
+    pinMode(sensorOnePin, INPUT); // INPUT
 
     // Sensor 2 initializing
-    pinMode(sensorTwoPin, INPUT_PULLUP);
-
-    /* 
-    [INITIALIZE PIN HERE FOR RESET BUTTON] 
-    // Reset button initializing
-    pinMode(resetButton, INPUT_PULLUP); 
-    */
+    pinMode(sensorTwoPin, INPUT);
 
     // Enable dots in time (ex: 11:11)
     drawDots = true; 
@@ -61,47 +50,19 @@ void loop() {
     // Printing state of timer for debugging. Can delete later. 
     Serial.println(state);
 
-    if(digitalRead(sensorOnePin) == HIGH){ // If the first sensor is triggered, 
-      delay(200); // Short delay. WILL NOT WORK without delay. Can play around with this number, but it gets buggy without a short delay because it triggers the button multiple times in one click.
-      if(state==2){ // If the state is 2 and the button was clicked, reset the state to 0 (to display 00:00).
-        state=0;
-      }else{ // If the sensor is triggered, increase the state value to 1. 
-        state++;
-      }
-    }
-
-      if(state==0){ // If the state is 0, display (00:00).
-        resetTimer(); 
-      }else if(state==1){ // If the state is 1, enter function to begin stopwatch. The program remains in drawTime function loop until the sensor is triggered again, in which case the
-      // loop breaks and state is increased to 2. The program then returns to this main loop(). 
-        drawTime();
-      } else{ // If the state is 2, displays the values stored in dig0dig1 : dig3dig4. These values store the most current value displayed on the timer, and updated during state 1
-      // within the drawTime() loop. 
-        displayEndTime();
-      }
-
-      /*
-      [CODE ABOVE functions with a single button. Each click of the button sends the code into a different state: state 0 (00:00), state 1 (running), state 2 (frozen).
-        Below I will include code for a setup with two sensors and a reset button.]
-
+      // If the timer displays 00:00 and the button is pressed, change state to 1 (running).
       if(digitalRead(sensorOnePin) == HIGH){
-        delay(500);
         state = 1; 
       }
-      if(digitalRead(resetButton) == HIGH){
-        delay(500);
-        state = 0; 
-      }
 
-      if(state==0){ // These conditionals are the exact same as the code above. 
+      if(state==0){ // If the state is 0, display 00:00. 
         resetTimer();
-      } else if(state==1){
+      } else if(state==1){ // if the state is 1, run timer. 
         drawTime(); 
       }else{
-        displayEndTime(): 
+        displayEndTime(); // If the state is 2, display most recent value.
       }
       
-      */
 }
 
 // Stopwatch function. If the timer is in state 0 (00:00) and the sensor is triggered, the program will trigger this function. 
@@ -122,29 +83,16 @@ void drawTime(){
       matrix.writeDigitNum(4, counter % 10, drawDots);
       matrix.writeDisplay();
 
-      delay(8); // This statement is needed or else the timer goes waaay too fast. You can play around with this as necessary. However, I found that the 8ms delay 
-      // made the loop match up closely with an actual stopwatch. 
+      delay(8); // This statement is needed or else the timer goes waaay too fast. THIS IS FOR THE FOR-LOOP NOT THE HARDWARE! 
 
       // If the sensor is triggered while the stopwatch is runing, increase the state to 2 to stop the numbers and display the most recent digits. Then break out of the loop. 
-      if(digitalRead(sensorOnePin) == HIGH) {
-          state++;
-          delay(1000); // Again, this delay is necessary to avoid buginess. The exact value can probably be played around with. I will say though, it starts acting up for any value 
-          // under 500 ms. 
+      if(digitalRead(sensorTwoPin) == HIGH) {
+          state = 2;
           break;
       }
-
-    /* 
-    [Code for setup with 2 sensors and a reset button below]
-    if(digitalRead(sensorTwoPin)==HIGH){
-      state = 2; 
-      delay(500);
-      break; 
-    }
-    */
-
-    }
-
+  }
 }
+
 // When the state is equal to 2 (ie the sensor was triggered while the stopwatch was running), display the digits stored in dig0dig1:dig3dig4 (freeze the timer).
 void displayEndTime(){
     matrix.writeDigitNum(0, dig0, drawDots);
