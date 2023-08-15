@@ -1,54 +1,4 @@
-// Include for boolean operations 
-#include <stdbool.h>
-
-// Includes for the LED display 
-#include <Wire.h> 
-#include <Adafruit_GFX.h>
-#include "Adafruit_LEDBackpack.h"
-
-// Pins connected to each of the 2 sensors 
-const int sensorOnePin = 9; 
-const int sensorTwoPin = 10; 
-
-// LED display initialization
-Adafruit_7segment matrix = Adafruit_7segment();
-
-// Indicates if you want the dots to be displayed on the LED board (ex. 11:11). Initialized to true in setup().
-bool drawDots; 
-
-// Each digit on LED display. Skips 2 because digit2 represents the colon in the time. 
-int dig0, dig1, dig3, dig4; 
-
-
-// State of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped). State determined by sensor/button input in loop(). 
-int state;
-
-void setup() {
-    // Sensor 1 initializing
-    pinMode(sensorOnePin, INPUT); // INPUT
-
-    // Sensor 2 initializing
-    pinMode(sensorTwoPin, INPUT);
-
-    // Enable dots in time (ex: 11:11)
-    drawDots = true; 
-
-  // I2C communication port for LED display 
-    matrix.begin(0x70);
-
-    // Initializing each digit on LED display to 0. Skips 2 because digit2 represents the colon in the time. 
-    dig0 = 0, dig1=0, dig3=0, dig4 = 0; 
-
-    // Initialize state of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped).
-    state = 0;
-
-    // Serial monitor for debugging. Can delete later. 
-    Serial.begin(9600);
-}
-
-void loop() {
-    // Printing state of timer for debugging. Can delete later. 
-    Serial.println(state);
+    // Serial.println(state);
 
       // If the timer displays 00:00 and the button is pressed, change state to 1 (running).
       if(digitalRead(sensorOnePin) == HIGH){
@@ -71,9 +21,9 @@ void drawTime(){
     for (uint16_t counter = 0; counter < 9999; counter ++) { // uint16_t is an unsigned 16 bit integer data type 
       // Storing the most current values of each digit on the LED display. These values are what the stopwatch will "freeze" to when stopped. 
       dig0=counter/1000; 
-      dig1 = counter/100; 
-      dig3= counter/10;
-      dig4=counter%10;
+      dig1 = (counter/100) % 10; 
+      dig3= (counter/10) % 10;
+      dig4=counter % 10;
 
       // Writing the digits to the LED display 
       matrix.writeDigitNum(0, (counter / 1000), drawDots);
@@ -88,6 +38,7 @@ void drawTime(){
       // If the sensor is triggered while the stopwatch is runing, increase the state to 2 to stop the numbers and display the most recent digits. Then break out of the loop. 
       if(digitalRead(sensorTwoPin) == HIGH) {
           state = 2;
+          Serial.println(counter);
           break;
       }
   }
@@ -95,6 +46,15 @@ void drawTime(){
 
 // When the state is equal to 2 (ie the sensor was triggered while the stopwatch was running), display the digits stored in dig0dig1:dig3dig4 (freeze the timer).
 void displayEndTime(){
+
+  // String str = dig0 + " ";
+  // String str2 = str + dig1; 
+  // String str3 = str2 + " ";
+  // String str4 = str3 + dig3; 
+  // String str5 = str4 + " ";
+  // String str6 = str5 + dig4;
+  // Serial.println(str6);
+
     matrix.writeDigitNum(0, dig0, drawDots);
     matrix.writeDigitNum(1, dig1, drawDots);
     matrix.drawColon(drawDots);
