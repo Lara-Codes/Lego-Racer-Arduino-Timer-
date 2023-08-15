@@ -43,21 +43,18 @@ void setup() {
     // Initialize state of timer. Can be 0 (00:00), 1 (timer running), or 2 (Timer stopped).
     state = 0;
 
-    // Serial monitor for debugging. Can delete later. 
+    // Serial monitor for debugging.
     Serial.begin(9600);
 }
 
 void loop() {
-    // Printing state of timer for debugging. Can delete later. 
-    // Serial.println(state);
-
       // If the timer displays 00:00 and the button is pressed, change state to 1 (running).
       if(digitalRead(sensorOnePin) == HIGH){
         state = 1; 
       }
 
       if(state==0){ // If the state is 0, display 00:00. Again, can connect a reset button to enter this state. As of now, 
-          // it only displays 00:00 when the Arduino intitially turns on. 
+          // it displays 00:00 only when the Arduino intitially turns on. 
         resetTimer();
       } else if(state==1){ // if the state is 1, run timer. 
         drawTime(); // The state may become 2 and display end time only in this function.
@@ -74,9 +71,9 @@ void drawTime(){
       // The counter represents the time displayed on the stop watch. The code below extracts each digit from the overal number. For 
         // example, if the counter is 1456, dig0 will hold 1, dig1 will hold 4, dig3 holds 5, and dig4 holds 6. 
         dig0=counter/1000; 
-      dig1 = (counter/100) % 10; 
-      dig3= (counter/10) % 10;
-      dig4=counter % 10;
+        dig1 = (counter/100) % 10; 
+        dig3= (counter/10) % 10;
+        dig4=counter % 10;
 
       // Writing each digits to the LED display. 
       matrix.writeDigitNum(0, (counter / 1000), drawDots);
@@ -89,7 +86,7 @@ void drawTime(){
       delay(8); // This statement is needed or else the timer goes waaay too fast. THIS IS FOR THE FOR-LOOP NOT THE HARDWARE! 
         // I compared the speed of the program to a real stopwatch, and a delay of 8ms makes the loop closest to 1 loop = 1s. 
         
-      // If the second sensor is triggered while the stopwatch is runing, increase the state to 2 and break out of the loop. 
+        // If the second sensor is triggered while the stopwatch is runing, increase the state to 2 and break out of the loop. 
         // When the state is 2, it displays the digits stored in dig0 - dig4 (Freezes the stopwatch). Calls function displayEndTime() 
         // in the main loop when state is 2. 
       if(digitalRead(sensorTwoPin) == HIGH) {
